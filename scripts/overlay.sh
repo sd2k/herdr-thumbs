@@ -44,8 +44,11 @@ else
 fi
 [[ -s $prepared ]] || bail "could not prepare the capture for display"
 
-mapfile -t pattern_args < <(pattern_files)
-mapfile -t picker_args < <(thumbs_args "${pattern_args[@]}")
+# macOS ships bash 3.2, which has no mapfile: collect the lines by hand.
+pattern_args=()
+while IFS= read -r line; do pattern_args+=("$line"); done < <(pattern_files)
+picker_args=()
+while IFS= read -r line; do picker_args+=("$line"); done < <(thumbs_args "${pattern_args[@]}")
 : >"$result"
 "$bin" --format '%U:%H' --target "$result" "${picker_args[@]}" <"$prepared"
 
