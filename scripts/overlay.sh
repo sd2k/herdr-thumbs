@@ -30,8 +30,15 @@ bin=$(thumbs_bin) || bin=
 [[ -n $bin ]] ||
   bail "no thumbs binary found. Run scripts/build.sh in the plugin directory, or set THUMBS_BIN in $CONFIG_DIR/config.env"
 
-cols=$(tput cols 2>/dev/null || echo 80)
-rows=$(tput lines 2>/dev/null || echo 24)
+# $(tput cols 2>/dev/null) leaves tput with no tty to measure: the command
+# substitution captures stdout and the redirect discards stderr, so ncurses
+# falls back to the terminfo default of 80x24 and the capture gets clipped to
+# the top-left corner. Measure the pane's tty directly instead.
+size=$(stty size </dev/tty 2>/dev/null || stty size 2>/dev/null || true)
+rows=${size%% *}
+cols=${size##* }
+[[ $rows =~ ^[0-9]+$ ]] || rows=$(tput lines 2>/dev/null || echo 24)
+[[ $cols =~ ^[0-9]+$ ]] || cols=$(tput cols 2>/dev/null || echo 80)
 
 if command -v python3 >/dev/null 2>&1; then
   python3 "$PLUGIN_ROOT/scripts/prepare.py" \
