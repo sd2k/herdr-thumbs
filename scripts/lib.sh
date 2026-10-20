@@ -1,7 +1,10 @@
 # shellcheck shell=bash
 # Shared helpers for the herdr-thumbs plugin scripts.
 
+# After an upgrade the running server reports its replaced binary as
+# "/path/herdr (deleted)"; fall back to whatever herdr is on PATH.
 HERDR=${HERDR_BIN_PATH:-herdr}
+[[ -x $HERDR ]] || HERDR=herdr
 PLUGIN_ROOT=${HERDR_PLUGIN_ROOT:-$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}
 CONFIG_DIR=${HERDR_PLUGIN_CONFIG_DIR:-$PLUGIN_ROOT/config}
 STATE_DIR=${HERDR_PLUGIN_STATE_DIR:-${TMPDIR:-/tmp}/herdr-thumbs}
