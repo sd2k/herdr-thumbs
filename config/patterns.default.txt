@@ -10,3 +10,8 @@
 
 # path:line and path:line:col, so "src/main.rs:42" opens at the right line
 (?P<match>[.\w\-@$~\[\]]*(?:/[.\w\-@$\[\]]+)+:[0-9]+(?::[0-9]+)?)
+
+# URLs without the trailing punctuation the built-in one swallows, so
+# "see https://x.dev/a." and "(https://x.dev/a)" copy just the URL. Balanced
+# parens stay, as in https://en.wikipedia.org/wiki/Foo_(bar).
+(?P<match>(?:https?://|git@|git://|ssh://|ftp://|file:///)(?:[^\s()]|\([^\s()]*\))*(?:[^\s().,;:!?'"\]}>]|\([^\s()]*\)))
