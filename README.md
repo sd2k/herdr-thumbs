@@ -171,11 +171,13 @@ Both files are optional and live in the plugin config directory
 
 Two things worth knowing about the Herdr side of this:
 
-- **Clipboard.** Herdr has no clipboard API, so the copy goes through
-  `wl-copy`/`pbcopy`/`xclip`/`xsel` when a display is available, and through
-  OSC 52 to the outer terminal otherwise. OSC 52 works over SSH and in a bare
-  tty; a terminal that refuses OSC 52 writes will silently drop it, in which
-  case set `THUMBS_CLIPBOARD` to a command that works for you.
+- **Clipboard.** Herdr has no clipboard API, so the copy goes out as OSC 52,
+  which Herdr forwards to the attached client's terminal, and also through
+  `wl-copy`/`pbcopy`/`xclip`/`xsel` when a display is available. OSC 52 is what
+  makes it work over SSH or mosh: the server may still have `DISPLAY` set from
+  the desktop it was started on, so a native copy alone would land on the
+  wrong machine. A terminal that refuses OSC 52 writes will silently drop it,
+  in which case set `THUMBS_CLIPBOARD` to a command that works for you.
 - **Overlays cover the active pane.** Herdr does not let a plugin overlay
   target another pane, so the hints always land on the pane that had focus when
   you pressed the key. That is exactly what you want here, but it does mean the

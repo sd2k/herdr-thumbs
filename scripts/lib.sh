@@ -153,8 +153,12 @@ copy_to_clipboard() {
       ;;
   esac
 
-  # auto: prefer a native clipboard when this machine actually has one,
-  # otherwise hand the text to the outer terminal over OSC 52.
+  # auto: always send OSC 52, which herdr forwards to whichever client is
+  # attached, so it reaches the right machine over SSH. The plugin inherits the
+  # server's environment, so DISPLAY can be set even when the client is remote;
+  # the native copy is only a backup for terminals that drop OSC 52.
+  local ok=1
+  osc52_copy "$text" && ok=0
   if [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v wl-copy >/dev/null 2>&1; then
     printf '%s' "$text" | wl-copy && return 0
   fi
@@ -169,7 +173,7 @@ copy_to_clipboard() {
       printf '%s' "$text" | xsel --clipboard --input && return 0
     fi
   fi
-  osc52_copy "$text"
+  return $ok
 }
 
 notify() {
